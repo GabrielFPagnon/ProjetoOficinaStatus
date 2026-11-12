@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Wrench, Users, Car, Plus, Send, CheckCircle2, Clock, AlertTriangle, ChevronRight, Menu, X } from 'lucide-react';
 
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = 'https://oficina-status-api-dwh6e3ccf4hgb6eq.eastus-01.azurewebsites.net/api';
 
 export default function App() {
   const [abaAtiva, setAbaAtiva] = useState('os');
@@ -83,15 +83,15 @@ export default function App() {
   const handleMarcaChange = async (e) => {
     const marcaId = e.target.value;
     const marcaObj = marcas.find(m => m.codigo.toString() === marcaId.toString());
-    
-    setNovoVeiculo({ 
-      ...novoVeiculo, 
-      marcaId, 
+
+    setNovoVeiculo({
+      ...novoVeiculo,
+      marcaId,
       marca: marcaObj ? marcaObj.nome : '',
       modeloId: '',
-      modelo: '' 
+      modelo: ''
     });
-    
+
     if (marcaId) {
       try {
         const res = await axios.get(`${API_BASE}/fipe/marcas/${marcaId}/modelos`);
@@ -374,6 +374,7 @@ export default function App() {
                 </div>
                 <div>
                   <label className="block text-sm text-slate-400 mb-1">Marca (FIPE)</label>
+                  {/* Select de Marcas FIPE Seguro */}
                   <select
                     required
                     value={novoVeiculo.marcaId}
@@ -381,7 +382,7 @@ export default function App() {
                     className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 focus:outline-none focus:border-blue-500 text-sm sm:text-base"
                   >
                     <option value="">Selecione a Marca</option>
-                    {marcas.map(m => (
+                    {Array.isArray(marcas) && marcas.map(m => (
                       <option key={m.codigo} value={m.codigo}>{m.nome}</option>
                     ))}
                   </select>
@@ -393,13 +394,14 @@ export default function App() {
                 {modelos.length > 0 ? (
                   <select
                     required
-                    value={novoVeiculo.modelo}
-                    onChange={e => setNovoVeiculo({ ...novoVeiculo, modelo: e.target.value })}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 focus:outline-none focus:border-blue-500 text-sm sm:text-base"
+                    value={novoVeiculo.modeloId}
+                    onChange={handleModeloChange}
+                    disabled={!novoVeiculo.marcaId}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 focus:outline-none focus:border-blue-500 text-sm sm:text-base disabled:opacity-50"
                   >
                     <option value="">Selecione o Modelo</option>
-                    {modelos.map((mod, idx) => (
-                      <option key={mod.codigo || idx} value={mod.nome}>{mod.nome}</option>
+                    {Array.isArray(modelos) && modelos.map(m => (
+                      <option key={m.codigo} value={m.codigo}>{m.nome}</option>
                     ))}
                   </select>
                 ) : (
@@ -477,9 +479,9 @@ export default function App() {
                     >
                       <option value="">Selecione a OS</option>
                       {ordensServico.map(os => (
-                        <option 
-                          key={os.id} 
-                          value={os.id} 
+                        <option
+                          key={os.id}
+                          value={os.id}
                           disabled={os.status === 'aprovado' || os.status === 'entregue' || os.status === 'concluido'}
                         >
                           OS #{os.id} - {os.placa} [{os.status.toUpperCase()}] {(os.status === 'aprovado' || os.status === 'entregue') ? '(Bloqueado)' : ''}

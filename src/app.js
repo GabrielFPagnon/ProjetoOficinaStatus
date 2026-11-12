@@ -9,7 +9,11 @@ const osController = require('./controllers/osController');
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: '*', // Permite requisições de qualquer origem (Vercel, Localhost, etc)
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
